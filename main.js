@@ -61,23 +61,48 @@ const displayModal = (pokemon) => {
   modal.innerHTML = `
     <div class="modal-content">
       <span class="close-button">&times;</span>
-      <h2>${pokemon.name}</h2>
       <img src="${imgUrl}${pokemon.id}.png" alt="${pokemon.name}" />
-      <p>Height: ${pokemon.height}</p>
-      <p>Weight: ${pokemon.weight}</p>
-      <p>Abilities: ${pokemon.abilities.map((ability) => ability.ability.name).join(', ')}</p>
-      <p>Types: ${pokemon.types.map((type) => type.type.name).join(', ')}</p>
-      <p>Stats:</p>
-      <ul>
-        ${pokemon.stats.map((stat) => `<li>${stat.stat.name}: ${stat.base_stat}</li>`).join('')}
-      </ul>
+      <div>
+        <h2>${pokemon.name}</h2>
+        <p>Height: ${pokemon.height}</p>
+        <p>Weight: ${pokemon.weight}</p>
+        <p>Abilities: ${pokemon.abilities.map((ability) => ability.ability.name).join(', ')}</p>
+        <p>Types: ${pokemon.types.map((type) => type.type.name).join(', ')}</p>
+        <p>Stats:</p>
+        <ul>
+          ${pokemon.stats.map((stat) => `<li>${stat.stat.name}: ${stat.base_stat}</li>`).join('')}
+        </ul>
+      </div>
     </div>
   `;
   modal.style.display = 'block';
+  modal.style.opacity = '0';
+  setTimeout(() => {
+    modal.style.opacity = '1';
+  }, 1); // delay to trigger the transition
 
-  document.querySelector('.close-button').addEventListener('click', () => {
-    modal.style.display = 'none';
+  // Disable scrolling
+  document.body.style.overflow = 'hidden';
+
+  // Close the modal when clicking outside of it
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal(modal);
+    }
   });
+
+  // Close the modal when clicking the close button
+  document.querySelector('.close-button').addEventListener('click', () => {
+    closeModal(modal);
+  });
+};
+
+const closeModal = (modal) => {
+  modal.style.opacity = '0';
+  setTimeout(() => {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto'; // re-enable scrolling
+  }, 300); // delay to match the transition duration
 };
 
 const displayPagination = () => {
@@ -123,11 +148,15 @@ const displaySearchResults = (pokemons) => {
     container.appendChild(pokemonElement);
   });
 };
-// Event listeners
+
 document.querySelector('#search-bar').addEventListener('input', (e) => {
   const searchTerm = e.target.value.toLowerCase();
-  const filteredPokemons = pokemons.filter((pokemon) => pokemon.name.includes(searchTerm));
-  displaySearchResults(filteredPokemons);
+  if (searchTerm) {
+    const filteredPokemons = pokemons.filter((pokemon) => pokemon.name.includes(searchTerm));
+    displaySearchResults(filteredPokemons);
+  } else {
+    updateDisplayedPokemons();
+  }
 });
 
 // Fetch all the Pokemon data
