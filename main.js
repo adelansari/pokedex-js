@@ -5,6 +5,14 @@ const imgUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites
 let pokemons = [];
 let displayedPokemons = [];
 
+// helper function to capitalize the first letter of a string
+const formatName = (name) => {
+  return name
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 const fetchPokemon = async () => {
   try {
     const response = await fetch(`${baseUrl}?limit=${limit}`);
@@ -34,7 +42,7 @@ const displayPokemons = (pokemons) => {
     const pokemonElement = document.createElement('div');
     pokemonElement.innerHTML = `
       <img class="pokemon-image" src="${imgUrl}${pokemonId}.png" alt="${pokemon.name}" />
-      <h2>${pokemon.name}</h2>
+      <h2>${formatName(pokemon.name)}</h2>
       `;
     container.appendChild(pokemonElement);
 
@@ -150,7 +158,7 @@ const displaySearchResults = (pokemons) => {
     const pokemonElement = document.createElement('div');
     pokemonElement.innerHTML = `
       <img class="pokemon-image" src="${imgUrl}${pokemonId}.png" alt="${pokemon.name}" />
-      <h2>${pokemon.name}</h2>
+      <h2>${formatName(pokemon.name)}</h2>
       `;
     container.appendChild(pokemonElement);
   });
