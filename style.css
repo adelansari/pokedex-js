@@ -35,6 +35,12 @@ body {
   color: #aff608;
   padding: 1rem;
   margin: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#pokemon-container div:hover {
+  transform: scale(1.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* Pagination */
@@ -101,7 +107,6 @@ body {
   background-color: #fefefe;
   margin: 15% auto;
   padding: 20px;
-  border: 1px solid #888;
   width: 80%;
 }
 
