@@ -5,6 +5,9 @@ const imgUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites
 let pokemons = [];
 let displayedPokemons = [];
 
+// check favorites in local storage or initialize it
+let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
 // helper function to capitalize the first letter of a string
 const formatName = (name) => {
   return name
@@ -39,16 +42,39 @@ const displayPokemons = (pokemons) => {
 
   pokemons.forEach((pokemon) => {
     const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
+    const isFavorite = favorites.includes(pokemonId);
     const pokemonElement = document.createElement('div');
     pokemonElement.innerHTML = `
       <div class="card-id">${pokemonId}</div>
+      <i class="material-icons favorite-icon">${isFavorite ? 'star' : 'star_border'}</i>
       <img class="pokemon-image" src="${imgUrl}${pokemonId}.png" alt="${pokemon.name}" />
       <h2>${formatName(pokemon.name)}</h2>
       `;
     container.appendChild(pokemonElement);
 
     // Event listener for Pokemon grid element
-    pokemonElement.addEventListener('click', () => displayPokemonDetails(pokemon.url));
+    pokemonElement.addEventListener('click', (e) => {
+      if (e.target !== favoriteIcon) {
+        displayPokemonDetails(pokemon.url);
+      }
+    });
+
+    // Event listener for favorite icon
+    const favoriteIcon = pokemonElement.querySelector('.favorite-icon');
+    favoriteIcon.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent triggering the Pokemon grid element event listener
+      if (favorites.includes(pokemonId)) {
+        // Remove from favorites
+        favorites = favorites.filter((id) => id !== pokemonId);
+        favoriteIcon.textContent = 'star_border';
+      } else {
+        // Add to favorites
+        favorites.push(pokemonId);
+        favoriteIcon.textContent = 'star';
+      }
+      // Update favorites in local storage
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+    });
   });
 };
 
