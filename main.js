@@ -47,9 +47,29 @@ const displayPokemonDetails = async (url) => {
       throw new Error(`Error status: ${response.status}`);
     }
     const data = await response.json();
+    displayModal(data);
   } catch (error) {
     console.error(error);
   }
+};
+
+const displayModal = (pokemon) => {
+  const modal = document.querySelector('#pokemon-modal');
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>${pokemon.name}</h2>
+      <img src="${imgUrl}${pokemon.id}.png" alt="${pokemon.name}" />
+      <p>Height: ${pokemon.height}</p>
+      <p>Weight: ${pokemon.weight}</p>
+      <p>Abilities: ${pokemon.abilities.map((ability) => ability.ability.name).join(', ')}</p>
+    </div>
+  `;
+  modal.style.display = 'block';
+
+  document.querySelector('.close-button').addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
 };
 
 const displayPagination = () => {
