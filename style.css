@@ -14,7 +14,7 @@ body {
   background-image: url(assets/pokemon-background.jpeg);
   font-family: 'Press Start 2P', sans-serif;
   background-position: 0 0;
-  animation: slide 5s infinite linear;
+  animation: slide 40s infinite linear;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -28,7 +28,7 @@ body {
   }
 
   to {
-    background-position: -120px 60px;
+    background-position: -1920px 1080px;
   }
 }
 
