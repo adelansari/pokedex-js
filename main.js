@@ -161,6 +161,7 @@ const displaySearchResults = (pokemons) => {
       <h2>${formatName(pokemon.name)}</h2>
       `;
     container.appendChild(pokemonElement);
+    pokemonElement.addEventListener('click', () => displayPokemonDetails(pokemon.url));
   });
 };
 
