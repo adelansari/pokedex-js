@@ -1,6 +1,7 @@
 let currentPage = 1;
 const limit = 1302; // total number of Pokemon
 const baseUrl = 'https://pokeapi.co/api/v2/pokemon';
+const imgUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
 let pokemons = [];
 let displayedPokemons = [];
 
@@ -29,8 +30,10 @@ const displayPokemons = (pokemons) => {
   container.innerHTML = ''; // clear the container
 
   pokemons.forEach((pokemon) => {
+    const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
     const pokemonElement = document.createElement('div');
     pokemonElement.innerHTML = `
+      <img class="pokemon-image" src="${imgUrl}${pokemonId}.png" alt="${pokemon.name}" />
       <h2>${pokemon.name}</h2>
       `;
     container.appendChild(pokemonElement);
@@ -71,17 +74,18 @@ const displaySearchResults = (pokemons) => {
   container.innerHTML = ''; // clear the container
 
   pokemons.forEach((pokemon) => {
+    const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
     const pokemonElement = document.createElement('div');
     pokemonElement.innerHTML = `
+      <img class="pokemon-image" src="${imgUrl}${pokemonId}.png" alt="${pokemon.name}" />
       <h2>${pokemon.name}</h2>
       `;
     container.appendChild(pokemonElement);
   });
 };
-
 // Event listeners
 document.querySelector('#search-bar').addEventListener('input', (e) => {
-  const searchTerm = event.target.value.toLowerCase();
+  const searchTerm = e.target.value.toLowerCase();
   const filteredPokemons = pokemons.filter((pokemon) => pokemon.name.includes(searchTerm));
   displaySearchResults(filteredPokemons);
 });
