@@ -41,6 +41,7 @@ const displayPokemons = (pokemons) => {
     const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
     const pokemonElement = document.createElement('div');
     pokemonElement.innerHTML = `
+      <div class="card-id">${pokemonId}</div>
       <img class="pokemon-image" src="${imgUrl}${pokemonId}.png" alt="${pokemon.name}" />
       <h2>${formatName(pokemon.name)}</h2>
       `;
