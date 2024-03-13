@@ -272,3 +272,12 @@ main {
   top: 0;
   left: 0;
 }
+
+.favorite-icon {
+  position: absolute;
+  padding: 0.1rem;
+  top: 0.6rem;
+  right: 0.5rem;
+  cursor: pointer;
+  color: yellow;
+}
