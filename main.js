@@ -68,18 +68,46 @@ const displayModal = (pokemon) => {
   const modal = document.querySelector('#pokemon-modal');
   modal.innerHTML = `
     <div class="modal-content">
-      <span class="close-button">&times;</span>
-      <img src="${imgUrl}${pokemon.id}.png" alt="${pokemon.name}" />
-      <div>
-        <h2>${pokemon.name}</h2>
-        <p>Height: ${pokemon.height}</p>
-        <p>Weight: ${pokemon.weight}</p>
-        <p>Abilities: ${pokemon.abilities.map((ability) => ability.ability.name).join(', ')}</p>
-        <p>Types: ${pokemon.types.map((type) => type.type.name).join(', ')}</p>
-        <p>Stats:</p>
-        <ul>
-          ${pokemon.stats.map((stat) => `<li>${stat.stat.name}: ${stat.base_stat}</li>`).join('')}
-        </ul>
+      <button class="close-button">&times;</button>
+      <div class="pokemon-details">
+        <img src="${imgUrl}${pokemon.id}.png" alt="${pokemon.name}" />
+        <table>
+          <thead>
+            <tr>
+              <th colspan="2">${formatName(pokemon.name)}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>ID</th>
+              <td>${pokemon.id}</td>
+            </tr>
+            <tr>
+              <th>Types</th>
+              <td>${pokemon.types.map((type) => type.type.name).join(', ')}</td>
+            </tr>
+            <tr>
+              <th>Species</th>
+              <td>${pokemon.species.name}</td>
+            </tr>
+            <tr>
+              <th>Height</th>
+              <td>${pokemon.height / 10.0} m</td> <!-- Convert height from decimetres to meters -->
+            </tr>
+            <tr>
+              <th>Weight</th>
+              <td>${pokemon.weight / 10.0} kg</td> <!-- Convert weight from hectograms to kilograms -->
+            </tr>
+            <tr>
+              <th>Stats</th>
+              <td>
+                <ul>
+                  ${pokemon.stats.map((stat) => `<li>${stat.stat.name}: ${stat.base_stat}</li>`).join('')}
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   `;
