@@ -134,9 +134,16 @@ const displayPagination = () => {
   }
 };
 
+let searchTimeout;
+
 const displaySearchResults = (pokemons) => {
   const container = document.querySelector('#pokemon-container');
   container.innerHTML = ''; // clear the container
+
+  if (pokemons.length === 0) {
+    container.innerHTML = '<div class="no-results">No pokemon found</div>'; // Add a no results message
+    return;
+  }
 
   pokemons.forEach((pokemon) => {
     const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
@@ -150,13 +157,17 @@ const displaySearchResults = (pokemons) => {
 };
 
 document.querySelector('#search-bar').addEventListener('input', (e) => {
-  const searchTerm = e.target.value.toLowerCase();
-  if (searchTerm) {
-    const filteredPokemons = pokemons.filter((pokemon) => pokemon.name.includes(searchTerm));
-    displaySearchResults(filteredPokemons);
-  } else {
-    updateDisplayedPokemons();
-  }
+  clearTimeout(searchTimeout);
+
+  searchTimeout = setTimeout(() => {
+    const searchTerm = e.target.value.toLowerCase();
+    if (searchTerm) {
+      const filteredPokemons = pokemons.filter((pokemon) => pokemon.name.includes(searchTerm));
+      displaySearchResults(filteredPokemons);
+    } else {
+      updateDisplayedPokemons();
+    }
+  }, 1000); // Delay of 1 second
 });
 
 // Fetch all the Pokemon data
