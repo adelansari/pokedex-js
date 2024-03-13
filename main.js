@@ -37,6 +37,9 @@ const displayPokemons = (pokemons) => {
       <h2>${pokemon.name}</h2>
       `;
     container.appendChild(pokemonElement);
+
+    // Event listener for Pokemon grid element
+    pokemonElement.addEventListener('click', () => displayPokemonDetails(pokemon.url));
   });
 };
 
@@ -63,6 +66,11 @@ const displayModal = (pokemon) => {
       <p>Height: ${pokemon.height}</p>
       <p>Weight: ${pokemon.weight}</p>
       <p>Abilities: ${pokemon.abilities.map((ability) => ability.ability.name).join(', ')}</p>
+      <p>Types: ${pokemon.types.map((type) => type.type.name).join(', ')}</p>
+      <p>Stats:</p>
+      <ul>
+        ${pokemon.stats.map((stat) => `<li>${stat.stat.name}: ${stat.base_stat}</li>`).join('')}
+      </ul>
     </div>
   `;
   modal.style.display = 'block';
