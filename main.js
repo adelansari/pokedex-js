@@ -13,7 +13,9 @@ const formatName = (name) => {
     .join(' ');
 };
 
+const spinner = document.querySelector('#loader');
 const fetchPokemon = async () => {
+  spinner.style.display = 'block'; // Show spinner
   try {
     const response = await fetch(`${baseUrl}?limit=100000`);
     if (!response.ok) {
@@ -24,6 +26,8 @@ const fetchPokemon = async () => {
     updateDisplayedPokemons();
   } catch (error) {
     console.error(error);
+  } finally {
+    spinner.style.display = 'none'; // Hide spinner
   }
 };
 
@@ -75,6 +79,7 @@ const displayPokemons = (pokemons) => {
 };
 
 const displayPokemonDetails = async (url) => {
+  spinner.style.display = 'block'; // Show spinner
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -84,6 +89,8 @@ const displayPokemonDetails = async (url) => {
     displayModal(data);
   } catch (error) {
     console.error(error);
+  } finally {
+    spinner.style.display = 'none'; // Hide spinner
   }
 };
 
