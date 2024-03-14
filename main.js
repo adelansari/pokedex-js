@@ -161,24 +161,24 @@ const displayModal = (pokemon) => {
   const modal = document.querySelector('#pokemon-modal');
   modal.innerHTML = `
   <div class="modal-content">
-  <button class="close-button">&times;</button>
-  <div class="pokemon-details">
-    <img src="${imgUrl}${id}.png" alt="${name}" />
-    <table>
-      <thead>
-        <tr><th colspan="2">${formattedName}</th></tr>
-      </thead>
-      <tbody>
-        <tr><th>ID</th><td>${id}</td></tr>
-        <tr><th>Types</th><td>${typesList}</td></tr>
-        <tr><th>Species</th><td>${species.name}</td></tr>
-        <tr><th>Height</th><td>${height / 10.0} m</td></tr>
-        <tr><th>Weight</th><td>${weight / 10.0} kg</td></tr>
-        <tr><th>Stats</th><td><ul>${statsList}</ul></td></tr>
-      </tbody>
-    </table>
+    <button class="close-button">&times;</button>
+    <div class="pokemon-details">
+      <img src="${imgUrl}${id}.png" alt="${name}" />
+      <table>
+        <thead>
+          <tr><th colspan="2">${formattedName}</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>ID</th><td>${id}</td></tr>
+          <tr><th>Types</th><td>${typesList}</td></tr>
+          <tr><th>Species</th><td>${species.name}</td></tr>
+          <tr><th>Height</th><td>${height / 10.0} m</td></tr>
+          <tr><th>Weight</th><td>${weight / 10.0} kg</td></tr>
+          <tr><th>Stats</th><td><ul>${statsList}</ul></td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
   `;
   modal.style.display = 'block';
   modal.style.opacity = '0';
