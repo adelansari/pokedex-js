@@ -4,8 +4,9 @@ let currentPage = 1;
 let pokemons = [];
 let displayedPokemons = [];
 let favorites = JSON.parse(localStorage.getItem('favorites')) || []; // check favorites in local storage or initialize it
+let timeoutId; // for pagination input
 
-// helper function to capitalize the first letter of a string
+// Helper Functions
 const formatName = (name) => {
   return name
     .split('-')
@@ -13,10 +14,10 @@ const formatName = (name) => {
     .join(' ');
 };
 
-const spinner = document.querySelector('#loader');
-
+// Fetching and Displaying Pokemon
 const fetchPokemon = async () => {
-  spinner.style.display = 'block'; // Show spinner
+  const spinner = document.querySelector('#loader');
+  spinner.style.display = 'block'; // show spinner
   try {
     const response = await fetch(`${baseUrl}?limit=100000`);
     if (!response.ok) {
@@ -28,7 +29,7 @@ const fetchPokemon = async () => {
   } catch (error) {
     console.error(error);
   } finally {
-    spinner.style.display = 'none'; // Hide spinner
+    spinner.style.display = 'none'; // hide spinner
   }
 };
 
@@ -38,21 +39,19 @@ const updateDisplayedPokemons = () => {
   displayPagination();
 };
 
-const toggleFavorite = (pokemonId, favoriteIcon) => {
-  if (favorites.includes(pokemonId)) {
-    // Remove from favorites
-    favorites = favorites.filter((id) => id !== pokemonId);
-    favoriteIcon.textContent = 'star_border';
-  } else {
-    // Add to favorites
-    favorites.push(pokemonId);
-    favoriteIcon.textContent = 'star';
-  }
-  localStorage.setItem('favorites', JSON.stringify(favorites));
+const displayPokemons = (pokemons) => {
+  const container = document.querySelector('#pokemon-container');
+  container.innerHTML = ''; // clear the container
+
+  pokemons.forEach((pokemon) => {
+    const pokemonElement = createPokemonElement(pokemon);
+    container.appendChild(pokemonElement);
+  });
 };
 
+// Pokemon Element Creation and Favorite Handling
 const createPokemonElement = (pokemon) => {
-  const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
+  const pokemonId = pokemon.url.split('/')[6]; // extract the id from the url
   const isFavorite = favorites.includes(pokemonId);
   const pokemonElement = document.createElement('div');
   pokemonElement.innerHTML = `
@@ -72,25 +71,30 @@ const createPokemonElement = (pokemon) => {
   // Event listener for favorite icon
   const favoriteIcon = pokemonElement.querySelector('.favorite-icon');
   favoriteIcon.addEventListener('click', (e) => {
-    e.stopPropagation(); // Prevent triggering the Pokemon grid element event listener
+    e.stopPropagation(); // prevent triggering the pokemon grid element event listener
     toggleFavorite(pokemonId, favoriteIcon);
   });
 
   return pokemonElement;
 };
 
-const displayPokemons = (pokemons) => {
-  const container = document.querySelector('#pokemon-container');
-  container.innerHTML = ''; // clear the container
-
-  pokemons.forEach((pokemon) => {
-    const pokemonElement = createPokemonElement(pokemon);
-    container.appendChild(pokemonElement);
-  });
+const toggleFavorite = (pokemonId, favoriteIcon) => {
+  if (favorites.includes(pokemonId)) {
+    // Remove from favorites
+    favorites = favorites.filter((id) => id !== pokemonId);
+    favoriteIcon.textContent = 'star_border';
+  } else {
+    // Add to favorites
+    favorites.push(pokemonId);
+    favoriteIcon.textContent = 'star';
+  }
+  localStorage.setItem('favorites', JSON.stringify(favorites));
 };
 
+// Pokemon Details and Modal Handling
 const displayPokemonDetails = async (url) => {
-  spinner.style.display = 'block'; // Show spinner
+  const spinner = document.querySelector('#loader');
+  spinner.style.display = 'block'; // show spinner
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -101,7 +105,7 @@ const displayPokemonDetails = async (url) => {
   } catch (error) {
     console.error(error);
   } finally {
-    spinner.style.display = 'none'; // Hide spinner
+    spinner.style.display = 'none'; // hide spinner
   }
 };
 
@@ -179,11 +183,10 @@ const closeModal = (modal) => {
   setTimeout(() => {
     modal.style.display = 'none';
     document.body.style.overflow = 'auto'; // re-enable scrolling
-  }, 300); // delay to match the transition duration
+  }, 300);
 };
 
-let timeoutId;
-
+// Pagination
 const displayPagination = () => {
   const pagination = document.querySelector('#pagination');
   pagination.innerHTML = ''; // clear the pagination
@@ -231,23 +234,9 @@ const displayPagination = () => {
     pagination.appendChild(nextButton);
   }
 };
+
+// Search Functionality
 let searchTimeout;
-
-const displaySearchResults = (pokemons) => {
-  const container = document.querySelector('#pokemon-container');
-  container.innerHTML = ''; // clear the container
-
-  if (pokemons.length === 0) {
-    container.innerHTML = '<div class="no-results">No pokemon found</div>'; // Add a no results message
-    return;
-  }
-
-  pokemons.forEach((pokemon) => {
-    const pokemonElement = createPokemonElement(pokemon);
-    container.appendChild(pokemonElement);
-  });
-};
-
 document.querySelector('#search-bar').addEventListener('input', (e) => {
   clearTimeout(searchTimeout);
 
@@ -259,16 +248,31 @@ document.querySelector('#search-bar').addEventListener('input', (e) => {
     } else {
       updateDisplayedPokemons();
     }
-  }, 500); // Delay of 0.5 second
+  }, 500);
 });
+
+const displaySearchResults = (pokemons) => {
+  const container = document.querySelector('#pokemon-container');
+  container.innerHTML = ''; // clear the container
+
+  if (pokemons.length === 0) {
+    container.innerHTML = '<div class="no-results">No pokemon found</div>'; // add a no results message
+    return;
+  }
+
+  pokemons.forEach((pokemon) => {
+    const pokemonElement = createPokemonElement(pokemon);
+    container.appendChild(pokemonElement);
+  });
+};
 
 // Fetch all the Pokemon data
 fetchPokemon();
 
 // Event listener for window resize
 window.addEventListener('resize', () => {
-  document.body.style.height = `${window.innerHeight}px`;
+  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
 });
 
 // Initial set
-document.body.style.height = `${window.innerHeight}px`;
+document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
