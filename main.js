@@ -14,6 +14,7 @@ const formatName = (name) => {
 };
 
 const spinner = document.querySelector('#loader');
+
 const fetchPokemon = async () => {
   spinner.style.display = 'block'; // Show spinner
   try {
@@ -37,44 +38,50 @@ const updateDisplayedPokemons = () => {
   displayPagination();
 };
 
+const createPokemonElement = (pokemon) => {
+  const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
+  const isFavorite = favorites.includes(pokemonId);
+  const pokemonElement = document.createElement('div');
+  pokemonElement.innerHTML = `
+    <div class="card-id">${pokemonId}</div>
+    <i class="material-icons favorite-icon">${isFavorite ? 'star' : 'star_border'}</i>
+    <img class="pokemon-image" src="${imgUrl}${pokemonId}.png" alt="${pokemon.name}" />
+    <h2>${formatName(pokemon.name)}</h2>
+    `;
+
+  // Event listener for Pokemon grid element
+  pokemonElement.addEventListener('click', (e) => {
+    if (e.target !== favoriteIcon) {
+      displayPokemonDetails(pokemon.url);
+    }
+  });
+
+  // Event listener for favorite icon
+  const favoriteIcon = pokemonElement.querySelector('.favorite-icon');
+  favoriteIcon.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent triggering the Pokemon grid element event listener
+    if (favorites.includes(pokemonId)) {
+      // Remove from favorites
+      favorites = favorites.filter((id) => id !== pokemonId);
+      favoriteIcon.textContent = 'star_border';
+    } else {
+      // Add to favorites
+      favorites.push(pokemonId);
+      favoriteIcon.textContent = 'star';
+    }
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  });
+
+  return pokemonElement;
+};
+
 const displayPokemons = (pokemons) => {
   const container = document.querySelector('#pokemon-container');
   container.innerHTML = ''; // clear the container
 
   pokemons.forEach((pokemon) => {
-    const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
-    const isFavorite = favorites.includes(pokemonId);
-    const pokemonElement = document.createElement('div');
-    pokemonElement.innerHTML = `
-      <div class="card-id">${pokemonId}</div>
-      <i class="material-icons favorite-icon">${isFavorite ? 'star' : 'star_border'}</i>
-      <img class="pokemon-image" src="${imgUrl}${pokemonId}.png" alt="${pokemon.name}" />
-      <h2>${formatName(pokemon.name)}</h2>
-      `;
+    const pokemonElement = createPokemonElement(pokemon);
     container.appendChild(pokemonElement);
-
-    // Event listener for Pokemon grid element
-    pokemonElement.addEventListener('click', (e) => {
-      if (e.target !== favoriteIcon) {
-        displayPokemonDetails(pokemon.url);
-      }
-    });
-
-    // Event listener for favorite
-    const favoriteIcon = pokemonElement.querySelector('.favorite-icon');
-    favoriteIcon.addEventListener('click', (e) => {
-      e.stopPropagation(); // Prevent triggering the Pokemon grid element event listener
-      if (favorites.includes(pokemonId)) {
-        // Remove from favorites
-        favorites = favorites.filter((id) => id !== pokemonId);
-        favoriteIcon.textContent = 'star_border';
-      } else {
-        // Add to favorites
-        favorites.push(pokemonId);
-        favoriteIcon.textContent = 'star';
-      }
-      localStorage.setItem('favorites', JSON.stringify(favorites));
-    });
   });
 };
 
@@ -232,39 +239,8 @@ const displaySearchResults = (pokemons) => {
   }
 
   pokemons.forEach((pokemon) => {
-    const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
-    const isFavorite = favorites.includes(pokemonId);
-    const pokemonElement = document.createElement('div');
-    pokemonElement.innerHTML = `
-      <div class="card-id">${pokemonId}</div>
-      <i class="material-icons favorite-icon">${isFavorite ? 'star' : 'star_border'}</i>
-      <img class="pokemon-image" src="${imgUrl}${pokemonId}.png" alt="${pokemon.name}" />
-      <h2>${formatName(pokemon.name)}</h2>
-      `;
+    const pokemonElement = createPokemonElement(pokemon);
     container.appendChild(pokemonElement);
-
-    // Event listener for Pokemon grid element
-    pokemonElement.addEventListener('click', (e) => {
-      if (e.target !== favoriteIcon) {
-        displayPokemonDetails(pokemon.url);
-      }
-    });
-
-    // Event listener for favorite icon
-    const favoriteIcon = pokemonElement.querySelector('.favorite-icon');
-    favoriteIcon.addEventListener('click', (e) => {
-      e.stopPropagation(); // Prevent triggering the Pokemon grid element event listener
-      if (favorites.includes(pokemonId)) {
-        // Remove from favorites
-        favorites = favorites.filter((id) => id !== pokemonId);
-        favoriteIcon.textContent = 'star_border';
-      } else {
-        // Add to favorites
-        favorites.push(pokemonId);
-        favoriteIcon.textContent = 'star';
-      }
-      localStorage.setItem('favorites', JSON.stringify(favorites));
-    });
   });
 };
 
