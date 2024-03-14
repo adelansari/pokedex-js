@@ -42,6 +42,7 @@ body {
   height: 5rem;
   max-height: 20vh;
 }
+
 /* Pokemon container */
 #pokemon-container {
   background-color: #a5d8ed40;
@@ -183,18 +184,14 @@ body {
   border: 1px solid #fff;
 }
 
-.pokemon-details th {
+.pokemon-details th,
+.pokemon-details td {
   text-align: left;
   padding: 5px;
   border: 1px solid #fff;
   color: #fff;
 }
 
-.pokemon-details td {
-  padding: 5px;
-  border: 1px solid #fff;
-  color: #fff;
-}
 .pokemon-details ul {
   list-style-type: none;
   padding: 0;
