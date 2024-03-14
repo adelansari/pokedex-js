@@ -100,7 +100,7 @@ body {
   border: none;
   border-radius: 5px;
   color: #333;
-  padding: 0.5rem 1rem;
+  padding: 0.1rem 0.3rem;
   margin: 0 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;

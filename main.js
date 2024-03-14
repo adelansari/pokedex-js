@@ -164,13 +164,15 @@ const closeModal = (modal) => {
   }, 300); // delay to match the transition duration
 };
 
+let timeoutId;
+
 const displayPagination = () => {
   const pagination = document.querySelector('#pagination');
   pagination.innerHTML = ''; // clear the pagination
 
   if (currentPage > 1) {
     const prevButton = document.createElement('button');
-    prevButton.textContent = 'Previous Page';
+    prevButton.innerHTML = `<i class="material-icons">arrow_back_ios</i>`;
     prevButton.addEventListener('click', () => {
       currentPage--;
       updateDisplayedPokemons();
@@ -178,13 +180,31 @@ const displayPagination = () => {
     pagination.appendChild(prevButton);
   }
 
-  const currentPageSpan = document.createElement('span');
-  currentPageSpan.textContent = `Page ${currentPage}`;
-  pagination.appendChild(currentPageSpan);
+  const currentPageInput = document.createElement('input');
+  currentPageInput.type = 'number';
+  currentPageInput.min = 1;
+  currentPageInput.max = Math.ceil(pokemons.length / 20);
+  currentPageInput.value = currentPage;
+  pagination.appendChild(currentPageInput);
 
-  if (currentPage < pokemons.length / 20) {
+  const totalPagesSpan = document.createElement('span');
+  totalPagesSpan.textContent = `/${Math.ceil(pokemons.length / 20)}`;
+  pagination.appendChild(totalPagesSpan);
+
+  currentPageInput.addEventListener('input', () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      const enteredPage = Number(currentPageInput.value);
+      if (enteredPage >= 1 && enteredPage <= Math.ceil(pokemons.length / 20)) {
+        currentPage = enteredPage;
+        updateDisplayedPokemons();
+      }
+    }, 500);
+  });
+
+  if (currentPage < Math.ceil(pokemons.length / 20)) {
     const nextButton = document.createElement('button');
-    nextButton.textContent = 'Next Page';
+    nextButton.innerHTML = `<i class="material-icons">arrow_forward_ios</i>`;
     nextButton.addEventListener('click', () => {
       currentPage++;
       updateDisplayedPokemons();
@@ -192,7 +212,6 @@ const displayPagination = () => {
     pagination.appendChild(nextButton);
   }
 };
-
 let searchTimeout;
 
 const displaySearchResults = (pokemons) => {
