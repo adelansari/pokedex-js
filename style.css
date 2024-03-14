@@ -280,6 +280,12 @@ main {
   right: 0.5rem;
   cursor: pointer;
   color: yellow;
+  transition: color 0.3s ease-in-out;
+}
+
+.favorite-icon:hover {
+  color: gold;
+  text-shadow: 0 0 5px #ffc700, 0 0 10px #ffc700, 0 0 15px #ffc700, 0 0 20px #ffc700;
 }
 
 footer {
