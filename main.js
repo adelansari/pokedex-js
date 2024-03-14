@@ -6,6 +6,27 @@ let displayedPokemons = [];
 let favorites = JSON.parse(localStorage.getItem('favorites')) || []; // check favorites in local storage or initialize it
 let timeoutId; // for pagination input
 
+const typeColors = {
+  normal: '#A8A77A',
+  fire: '#EE8130',
+  water: '#6390F0',
+  electric: '#F7D02C',
+  grass: '#7AC74C',
+  ice: '#96D9D6',
+  fighting: '#C22E28',
+  poison: '#A33EA1',
+  ground: '#E2BF65',
+  flying: '#A98FF3',
+  psychic: '#F95587',
+  bug: '#A6B91A',
+  rock: '#B6A136',
+  ghost: '#735797',
+  dragon: '#6F35FC',
+  dark: '#705746',
+  steel: '#B7B7CE',
+  fairy: '#D685AD',
+};
+
 // Helper Functions
 const formatName = (name) => {
   return name
@@ -13,6 +34,22 @@ const formatName = (name) => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
+
+function getContrastColor(bgColor) {
+  const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
+  const r = parseInt(color.substring(0, 2), 16); // hexToR
+  const g = parseInt(color.substring(2, 4), 16); // hexToG
+  const b = parseInt(color.substring(4, 6), 16); // hexToB
+  const uicolors = [r / 255, g / 255, b / 255];
+  const c = uicolors.map((col) => {
+    if (col <= 0.03928) {
+      return col / 12.92;
+    }
+    return Math.pow((col + 0.055) / 1.055, 2.4);
+  });
+  const L = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  return L > 0.179 ? '#000000' : '#FFFFFF';
+}
 
 // Fetching and Displaying Pokemon
 const fetchPokemon = async () => {
@@ -112,7 +149,13 @@ const displayPokemonDetails = async (url) => {
 const displayModal = (pokemon) => {
   const { id, name, types, species, height, weight, stats } = pokemon;
   const formattedName = formatName(name);
-  const typesList = types.map((type) => type.type.name).join(', ');
+  const typesList = types
+    .map((type) => {
+      const bgColor = typeColors[type.type.name];
+      const textColor = getContrastColor(bgColor);
+      return `<span class="type-label" style="background-color: ${bgColor}; color: ${textColor};">${type.type.name}</span>`;
+    })
+    .join(' ');
   const statsList = stats.map((stat) => `<li>${stat.stat.name}: ${stat.base_stat}</li>`).join('');
 
   const modal = document.querySelector('#pokemon-modal');
