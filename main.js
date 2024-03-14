@@ -185,6 +185,7 @@ const displayPagination = () => {
   currentPageInput.min = 1;
   currentPageInput.max = Math.ceil(pokemons.length / 20);
   currentPageInput.value = currentPage;
+  currentPageInput.className = 'page-input';
   pagination.appendChild(currentPageInput);
 
   const totalPagesSpan = document.createElement('span');
@@ -199,7 +200,7 @@ const displayPagination = () => {
         currentPage = enteredPage;
         updateDisplayedPokemons();
       }
-    }, 500);
+    }, 1000);
   });
 
   if (currentPage < Math.ceil(pokemons.length / 20)) {
