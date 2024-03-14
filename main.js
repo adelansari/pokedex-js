@@ -1,12 +1,9 @@
-let currentPage = 1;
-const limit = 1302; // total number of Pokemon
 const baseUrl = 'https://pokeapi.co/api/v2/pokemon';
 const imgUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
+let currentPage = 1;
 let pokemons = [];
 let displayedPokemons = [];
-
-// check favorites in local storage or initialize it
-let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+let favorites = JSON.parse(localStorage.getItem('favorites')) || []; // check favorites in local storage or initialize it
 
 // helper function to capitalize the first letter of a string
 const formatName = (name) => {
@@ -18,7 +15,7 @@ const formatName = (name) => {
 
 const fetchPokemon = async () => {
   try {
-    const response = await fetch(`${baseUrl}?limit=${limit}`);
+    const response = await fetch(`${baseUrl}?limit=100000`);
     if (!response.ok) {
       throw new Error(`Error status: ${response.status}`);
     }
@@ -255,7 +252,7 @@ document.querySelector('#search-bar').addEventListener('input', (e) => {
     } else {
       updateDisplayedPokemons();
     }
-  }, 1000); // Delay of 1 second
+  }, 500); // Delay of 0.5 second
 });
 
 // Fetch all the Pokemon data
