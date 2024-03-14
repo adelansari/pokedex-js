@@ -1,110 +1,118 @@
-const baseUrl = 'https://pokeapi.co/api/v2/pokemon';
-const imgUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
-let currentPage = 1;
-let pokemons = [];
-let displayedPokemons = [];
-let favorites = JSON.parse(localStorage.getItem('favorites')) || []; // check favorites in local storage or initialize it
+const config = {
+  baseUrl: 'https://pokeapi.co/api/v2/pokemon',
+  imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/',
+  pageSize: 20,
+};
 
-// helper function to capitalize the first letter of a string
-const formatName = (name) => {
-  return name
+const elements = {
+  loader: document.querySelector('#loader'),
+  pokemonContainer: document.querySelector('#pokemon-container'),
+  paginationContainer: document.querySelector('#pagination'),
+  pokemonModal: document.querySelector('#pokemon-modal'),
+  searchBar: document.querySelector('#search-bar'),
+};
+
+const state = {
+  currentPage: 1,
+  pokemons: [],
+  favorites: JSON.parse(localStorage.getItem('favorites')) || [],
+};
+
+// Helper Functions
+const capitalize = (name) =>
+  name
     .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word[0].toUpperCase() + word.slice(1))
     .join(' ');
-};
 
-const spinner = document.querySelector('#loader');
-const fetchPokemon = async () => {
-  spinner.style.display = 'block'; // Show spinner
+const showLoader = () => (elements.loader.style.display = 'block');
+const hideLoader = () => (elements.loader.style.display = 'none');
+
+const fetchAllPokemon = async () => {
   try {
-    const response = await fetch(`${baseUrl}?limit=100000`);
-    if (!response.ok) {
-      throw new Error(`Error status: ${response.status}`);
-    }
-    const data = await response.json();
-    pokemons = data.results;
-    updateDisplayedPokemons();
-  } catch (error) {
-    console.error(error);
+    showLoader();
+    let url = `${config.baseUrl}?limit=100000`;
+    const allPokemon = []; // Array to store ALL Pokemon
+
+    do {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      const data = await response.json();
+
+      allPokemon.push(...data.results); // Add Pokemon to the array
+      url = data.next; // Update URL for the next batch
+    } while (url); // Continue fetching as long as there's a 'next' URL
+
+    state.pokemons = allPokemon;
   } finally {
-    spinner.style.display = 'none'; // Hide spinner
+    hideLoader();
   }
 };
 
-const updateDisplayedPokemons = () => {
-  displayedPokemons = pokemons.slice((currentPage - 1) * 20, currentPage * 20);
-  displayPokemons(displayedPokemons);
-  displayPagination();
-};
-
-const displayPokemons = (pokemons) => {
-  const container = document.querySelector('#pokemon-container');
-  container.innerHTML = ''; // clear the container
-
-  pokemons.forEach((pokemon) => {
-    const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
-    const isFavorite = favorites.includes(pokemonId);
-    const pokemonElement = document.createElement('div');
-    pokemonElement.innerHTML = `
-      <div class="card-id">${pokemonId}</div>
+// Rendering Functions
+const renderPokemonCard = (pokemon) => {
+  const isFavorite = state.favorites.includes(pokemon.id.toString()); // Assuming Pokemon ID is a number
+  return `
+    <div class="pokemon-card">
+      <div class="card-id">${pokemon.id}</div>
       <i class="material-icons favorite-icon">${isFavorite ? 'star' : 'star_border'}</i>
-      <img class="pokemon-image" src="${imgUrl}${pokemonId}.png" alt="${pokemon.name}" />
-      <h2>${formatName(pokemon.name)}</h2>
-      `;
-    container.appendChild(pokemonElement);
-
-    // Event listener for Pokemon grid element
-    pokemonElement.addEventListener('click', (e) => {
-      if (e.target !== favoriteIcon) {
-        displayPokemonDetails(pokemon.url);
-      }
-    });
-
-    // Event listener for favorite
-    const favoriteIcon = pokemonElement.querySelector('.favorite-icon');
-    favoriteIcon.addEventListener('click', (e) => {
-      e.stopPropagation(); // Prevent triggering the Pokemon grid element event listener
-      if (favorites.includes(pokemonId)) {
-        // Remove from favorites
-        favorites = favorites.filter((id) => id !== pokemonId);
-        favoriteIcon.textContent = 'star_border';
-      } else {
-        // Add to favorites
-        favorites.push(pokemonId);
-        favoriteIcon.textContent = 'star';
-      }
-      localStorage.setItem('favorites', JSON.stringify(favorites));
-    });
-  });
+      <img class="pokemon-image" src="${config.imgUrl}${pokemon.id}.png" alt="${pokemon.name}" />
+      <h2>${capitalize(pokemon.name)}</h2>
+    </div>
+  `;
 };
 
-const displayPokemonDetails = async (url) => {
-  spinner.style.display = 'block'; // Show spinner
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Error status: ${response.status}`);
-    }
-    const data = await response.json();
-    displayModal(data);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    spinner.style.display = 'none'; // Hide spinner
+const renderPokemonList = () => {
+  const start = (state.currentPage - 1) * config.pageSize;
+  const end = start + config.pageSize;
+  const displayedPokemons = state.pokemons.slice(start, end);
+
+  elements.pokemonContainer.innerHTML = displayedPokemons
+    .map((pokemon) => {
+      // Update renderPokemonCard to use the actual properties from your Pokemon object
+      return renderPokemonCard(pokemon);
+    })
+    .join('');
+
+  addPokemonCardListeners();
+};
+
+const renderPagination = () => {
+  elements.paginationContainer.innerHTML = ''; // Clear existing pagination
+
+  let totalPages = Math.ceil(state.pokemons.length / config.pageSize);
+
+  if (state.currentPage > 1) {
+    const prevButton = document.createElement('button');
+    prevButton.textContent = 'Previous';
+    prevButton.addEventListener('click', () => {
+      state.currentPage--;
+      updateDisplayedPokemons();
+    });
+    elements.paginationContainer.appendChild(prevButton);
+  }
+
+  if (state.currentPage < totalPages) {
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Next';
+    nextButton.addEventListener('click', () => {
+      state.currentPage++;
+      updateDisplayedPokemons();
+    });
+    elements.paginationContainer.appendChild(nextButton);
   }
 };
 
-const displayModal = (pokemon) => {
-  const modal = document.querySelector('#pokemon-modal');
-  modal.innerHTML = `
+const renderPokemonModal = (pokemon) => {
+  elements.pokemonModal.innerHTML = `
     <div class="modal-content">
       <button class="close-button">&times;</button>
       <div class="pokemon-details">
-        <img src="${imgUrl}${pokemon.id}.png" alt="${pokemon.name}" />
+        <img src="${config.imgUrl}${pokemon.id}.png" alt="${pokemon.name}" />
         <table>
           <thead>
             <tr>
-              <th colspan="2">${formatName(pokemon.name)}</th>
+              <th colspan="2">${capitalize(pokemon.name)}</th>
             </tr>
           </thead>
           <tbody>
@@ -122,11 +130,11 @@ const displayModal = (pokemon) => {
             </tr>
             <tr>
               <th>Height</th>
-              <td>${pokemon.height / 10.0} m</td> <!-- Convert height from decimetres to meters -->
+              <td>${(pokemon.height / 10.0).toFixed(1)} m</td> 
             </tr>
             <tr>
               <th>Weight</th>
-              <td>${pokemon.weight / 10.0} kg</td> <!-- Convert weight from hectograms to kilograms -->
+              <td>${(pokemon.weight / 10.0).toFixed(1)} kg</td> 
             </tr>
             <tr>
               <th>Stats</th>
@@ -141,154 +149,80 @@ const displayModal = (pokemon) => {
       </div>
     </div>
   `;
-  modal.style.display = 'block';
-  modal.style.opacity = '0';
-  setTimeout(() => {
-    modal.style.opacity = '1';
-  }, 300); // delay to trigger the transition
 
-  // Disable scrolling
-  document.body.style.overflow = 'hidden';
+  elements.pokemonModal.style.display = 'block';
 
-  // Close the modal when clicking outside of it
-  window.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closeModal(modal);
-    }
-  });
-
-  // Close the modal when clicking the close button
-  document.querySelector('.close-button').addEventListener('click', () => {
-    closeModal(modal);
+  elements.pokemonModal.querySelector('.close-button').addEventListener('click', closeModal);
+  window.addEventListener('click', (event) => {
+    if (event.target === elements.pokemonModal) closeModal();
   });
 };
 
-const closeModal = (modal) => {
-  modal.style.opacity = '0';
-  setTimeout(() => {
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto'; // re-enable scrolling
-  }, 300); // delay to match the transition duration
+const closeModal = () => {
+  elements.pokemonModal.style.display = 'none';
 };
 
-let timeoutId;
+// Event Listeners
+const addPokemonCardListeners = () => {
+  elements.pokemonContainer.querySelectorAll('.pokemon-card').forEach((card) => {
+    card.addEventListener('click', () => displayPokemonDetails(card.querySelector('.card-id').textContent));
 
-const displayPagination = () => {
-  const pagination = document.querySelector('#pagination');
-  pagination.innerHTML = ''; // clear the pagination
-
-  if (currentPage > 1) {
-    const prevButton = document.createElement('button');
-    prevButton.innerHTML = `<i class="material-icons">arrow_back_ios</i>`;
-    prevButton.addEventListener('click', () => {
-      currentPage--;
-      updateDisplayedPokemons();
-    });
-    pagination.appendChild(prevButton);
-  }
-
-  const currentPageInput = document.createElement('input');
-  currentPageInput.type = 'number';
-  currentPageInput.min = 1;
-  currentPageInput.max = Math.ceil(pokemons.length / 20);
-  currentPageInput.value = currentPage;
-  currentPageInput.className = 'page-input';
-  pagination.appendChild(currentPageInput);
-
-  const totalPagesSpan = document.createElement('span');
-  totalPagesSpan.textContent = `/${Math.ceil(pokemons.length / 20)}`;
-  pagination.appendChild(totalPagesSpan);
-
-  currentPageInput.addEventListener('input', () => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      const enteredPage = Number(currentPageInput.value);
-      if (enteredPage >= 1 && enteredPage <= Math.ceil(pokemons.length / 20)) {
-        currentPage = enteredPage;
-        updateDisplayedPokemons();
-      }
-    }, 1000);
-  });
-
-  if (currentPage < Math.ceil(pokemons.length / 20)) {
-    const nextButton = document.createElement('button');
-    nextButton.innerHTML = `<i class="material-icons">arrow_forward_ios</i>`;
-    nextButton.addEventListener('click', () => {
-      currentPage++;
-      updateDisplayedPokemons();
-    });
-    pagination.appendChild(nextButton);
-  }
-};
-let searchTimeout;
-
-const displaySearchResults = (pokemons) => {
-  const container = document.querySelector('#pokemon-container');
-  container.innerHTML = ''; // clear the container
-
-  if (pokemons.length === 0) {
-    container.innerHTML = '<div class="no-results">No pokemon found</div>'; // Add a no results message
-    return;
-  }
-
-  pokemons.forEach((pokemon) => {
-    const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
-    const isFavorite = favorites.includes(pokemonId);
-    const pokemonElement = document.createElement('div');
-    pokemonElement.innerHTML = `
-      <div class="card-id">${pokemonId}</div>
-      <i class="material-icons favorite-icon">${isFavorite ? 'star' : 'star_border'}</i>
-      <img class="pokemon-image" src="${imgUrl}${pokemonId}.png" alt="${pokemon.name}" />
-      <h2>${formatName(pokemon.name)}</h2>
-      `;
-    container.appendChild(pokemonElement);
-
-    // Event listener for Pokemon grid element
-    pokemonElement.addEventListener('click', (e) => {
-      if (e.target !== favoriteIcon) {
-        displayPokemonDetails(pokemon.url);
-      }
-    });
-
-    // Event listener for favorite icon
-    const favoriteIcon = pokemonElement.querySelector('.favorite-icon');
-    favoriteIcon.addEventListener('click', (e) => {
-      e.stopPropagation(); // Prevent triggering the Pokemon grid element event listener
-      if (favorites.includes(pokemonId)) {
-        // Remove from favorites
-        favorites = favorites.filter((id) => id !== pokemonId);
-        favoriteIcon.textContent = 'star_border';
-      } else {
-        // Add to favorites
-        favorites.push(pokemonId);
-        favoriteIcon.textContent = 'star';
-      }
-      localStorage.setItem('favorites', JSON.stringify(favorites));
+    card.querySelector('.favorite-icon').addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFavorite(card.querySelector('.card-id').textContent);
     });
   });
 };
 
-document.querySelector('#search-bar').addEventListener('input', (e) => {
-  clearTimeout(searchTimeout);
+elements.searchBar.addEventListener('input', (e) => {
+  clearTimeout(searchTimeout); // Clear any existing timeouts
 
   searchTimeout = setTimeout(() => {
     const searchTerm = e.target.value.toLowerCase();
     if (searchTerm) {
-      const filteredPokemons = pokemons.filter((pokemon) => pokemon.name.includes(searchTerm));
-      displaySearchResults(filteredPokemons);
+      const filteredPokemons = state.pokemons.filter((pokemon) => pokemon.name.includes(searchTerm));
+      renderPokemonList(filteredPokemons);
     } else {
       updateDisplayedPokemons();
     }
-  }, 500); // Delay of 0.5 second
+  }, 500);
 });
 
-// Fetch all the Pokemon data
-fetchPokemon();
+// State Management
+const displayPokemonDetails = async (pokemonId) => {
+  try {
+    showLoader();
+    const response = await fetch(`${config.baseUrl}/${pokemonId}`);
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    const pokemonData = await response.json();
+    renderPokemonModal(pokemonData);
+  } catch (error) {
+    console.error('Error fetching details:', error);
+  } finally {
+    hideLoader();
+  }
+};
 
-// Event listener for window resize
-window.addEventListener('resize', () => {
-  document.body.style.height = `${window.innerHeight}px`;
-});
+const updateDisplayedPokemons = () => {
+  renderPokemonList();
+  renderPagination();
+};
 
-// Initial set
-document.body.style.height = `${window.innerHeight}px`;
+const toggleFavorite = (pokemonId) => {
+  const index = state.favorites.indexOf(pokemonId);
+  if (index > -1) {
+    state.favorites.splice(index, 1);
+  } else {
+    state.favorites.push(pokemonId);
+  }
+  localStorage.setItem('favorites', JSON.stringify(state.favorites));
+  updateDisplayedPokemons();
+};
+
+// Initialization
+const initialize = async () => {
+  state.pokemons = await fetchAllPokemon();
+  updateDisplayedPokemons();
+};
+
+initialize(); // Start fetching and display
