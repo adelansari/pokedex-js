@@ -269,10 +269,10 @@ const displaySearchResults = (pokemons) => {
 // Fetch all the Pokemon data
 fetchPokemon();
 
-// Event listener for window resize
-window.addEventListener('resize', () => {
+// Function to update --vh
+const updateVh = () => {
   document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-});
+};
 
-// Initial set
-document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+// Update --vh every 100 milliseconds
+setInterval(updateVh, 100);
