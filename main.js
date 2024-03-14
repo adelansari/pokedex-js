@@ -257,3 +257,11 @@ document.querySelector('#search-bar').addEventListener('input', (e) => {
 
 // Fetch all the Pokemon data
 fetchPokemon();
+
+// Event listener for window resize
+window.addEventListener('resize', () => {
+  document.body.style.height = `${window.innerHeight}px`;
+});
+
+// Initial set
+document.body.style.height = `${window.innerHeight}px`;
