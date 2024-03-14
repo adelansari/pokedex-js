@@ -38,6 +38,19 @@ const updateDisplayedPokemons = () => {
   displayPagination();
 };
 
+const toggleFavorite = (pokemonId, favoriteIcon) => {
+  if (favorites.includes(pokemonId)) {
+    // Remove from favorites
+    favorites = favorites.filter((id) => id !== pokemonId);
+    favoriteIcon.textContent = 'star_border';
+  } else {
+    // Add to favorites
+    favorites.push(pokemonId);
+    favoriteIcon.textContent = 'star';
+  }
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+};
+
 const createPokemonElement = (pokemon) => {
   const pokemonId = pokemon.url.split('/')[6]; // Extract the ID from the URL
   const isFavorite = favorites.includes(pokemonId);
@@ -60,16 +73,7 @@ const createPokemonElement = (pokemon) => {
   const favoriteIcon = pokemonElement.querySelector('.favorite-icon');
   favoriteIcon.addEventListener('click', (e) => {
     e.stopPropagation(); // Prevent triggering the Pokemon grid element event listener
-    if (favorites.includes(pokemonId)) {
-      // Remove from favorites
-      favorites = favorites.filter((id) => id !== pokemonId);
-      favoriteIcon.textContent = 'star_border';
-    } else {
-      // Add to favorites
-      favorites.push(pokemonId);
-      favoriteIcon.textContent = 'star';
-    }
-    localStorage.setItem('favorites', JSON.stringify(favorites));
+    toggleFavorite(pokemonId, favoriteIcon);
   });
 
   return pokemonElement;
