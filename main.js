@@ -27,7 +27,15 @@ const typeColors = {
   fairy: '#D685AD',
 };
 
-// Helper Functions
+// Function to update --vh
+const updateVh = () => {
+  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+};
+
+// Update --vh every 100 milliseconds
+setInterval(updateVh, 100);
+
+/* Helper Functions */
 const formatName = (name) => {
   return name
     .split('-')
@@ -35,7 +43,7 @@ const formatName = (name) => {
     .join(' ');
 };
 
-function getContrastColor(bgColor) {
+const getContrastColor = (bgColor) => {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
   const r = parseInt(color.substring(0, 2), 16); // hexToR
   const g = parseInt(color.substring(2, 4), 16); // hexToG
@@ -49,9 +57,9 @@ function getContrastColor(bgColor) {
   });
   const L = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
   return L > 0.179 ? '#000000' : '#FFFFFF';
-}
+};
 
-// Fetching and Displaying Pokemon
+/* Fetching and Displaying Pokemon */
 const fetchPokemon = async () => {
   const spinner = document.querySelector('#loader');
   spinner.style.display = 'block'; // show spinner
@@ -86,7 +94,7 @@ const displayPokemons = (pokemons) => {
   });
 };
 
-// Pokemon Element Creation and Favorite Handling
+/* Pokemon Element Creation and Favorite Handling */
 const createPokemonElement = (pokemon) => {
   const pokemonId = pokemon.url.split('/')[6]; // extract the id from the url
   const isFavorite = favorites.includes(pokemonId);
@@ -98,14 +106,14 @@ const createPokemonElement = (pokemon) => {
     <h2>${formatName(pokemon.name)}</h2>
     `;
 
-  // Event listener for Pokemon grid element
+  /* Event listener for Pokemon grid element */
   pokemonElement.addEventListener('click', (e) => {
     if (e.target !== favoriteIcon) {
       displayPokemonDetails(pokemon.url);
     }
   });
 
-  // Event listener for favorite icon
+  /* Event listener for favorite icon */
   const favoriteIcon = pokemonElement.querySelector('.favorite-icon');
   favoriteIcon.addEventListener('click', (e) => {
     e.stopPropagation(); // prevent triggering the pokemon grid element event listener
@@ -128,7 +136,7 @@ const toggleFavorite = (pokemonId, favoriteIcon) => {
   localStorage.setItem('favorites', JSON.stringify(favorites));
 };
 
-// Pokemon Details and Modal Handling
+/* Pokemon Details and Modal Handling */
 const displayPokemonDetails = async (url) => {
   const spinner = document.querySelector('#loader');
   spinner.style.display = 'block'; // show spinner
@@ -210,7 +218,7 @@ const closeModal = (modal) => {
   }, 300);
 };
 
-// Pagination
+/* Pagination */
 const displayPagination = () => {
   const pagination = document.querySelector('#pagination');
   pagination.innerHTML = ''; // clear the pagination
@@ -259,7 +267,7 @@ const displayPagination = () => {
   }
 };
 
-// Search Functionality
+/* Search Functionality */
 let searchTimeout;
 document.querySelector('#search-bar').addEventListener('input', (e) => {
   clearTimeout(searchTimeout);
@@ -293,10 +301,8 @@ const displaySearchResults = (pokemons) => {
 // Fetch all the Pokemon data
 fetchPokemon();
 
-// Function to update --vh
-const updateVh = () => {
-  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-};
+/* Filter Functionality */
 
-// Update --vh every 100 milliseconds
-setInterval(updateVh, 100);
+document.querySelector('#filter-icon').addEventListener('click', () => {
+  document.querySelector('#filter-modal').style.display = 'flex';
+});
