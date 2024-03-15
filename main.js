@@ -307,47 +307,81 @@ const displaySearchResults = (pokemons) => {
 // Fetch all the Pokemon data
 fetchPokemon();
 
-/* Sorting and filter */
-function createDropdown(options, callback) {
-  const dropdown = document.createElement('div');
-  dropdown.style.display = 'none'; // Hide by default
-  dropdown.style.position = 'absolute'; // Position absolutely
+/* Modal and filter */
+function createModal(callback) {
+  const modal = document.createElement('div');
+  modal.className = 'sortModal';
+  modal.style.display = 'none'; // Hide by default
 
-  options.forEach((option) => {
-    const button = document.createElement('button');
-    button.textContent = option;
-    button.addEventListener('click', () => {
-      dropdown.style.display = 'none'; // Hide dropdown
-      callback(option); // Call the callback with the selected option
-    });
-    dropdown.appendChild(button);
+  const modalContent = document.createElement('div');
+  modalContent.className = 'sortModalContent';
+
+  const grid = document.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'auto auto'; // Two columns
+
+  const label1 = document.createElement('label');
+  label1.textContent = 'Type:';
+  grid.appendChild(label1);
+  const select1 = document.createElement('select');
+  ['ID', 'Name'].forEach((option) => select1.add(new Option(option)));
+  grid.appendChild(select1);
+
+  const label2 = document.createElement('label');
+  label2.textContent = 'Sort:';
+  grid.appendChild(label2);
+  const select2 = document.createElement('select');
+  ['Ascending', 'Descending'].forEach((option) => select2.add(new Option(option)));
+  grid.appendChild(select2);
+
+  modalContent.appendChild(grid);
+
+  const applyButton = document.createElement('button');
+  applyButton.textContent = 'Apply';
+  applyButton.addEventListener('click', () => {
+    modal.style.display = 'none'; // Hide modal
+    callback(select1.value, select2.value); // Call the callback with the selected options
+  });
+  modalContent.appendChild(applyButton);
+
+  modal.appendChild(modalContent);
+
+  // Close the modal if clicked outside
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
   });
 
-  return dropdown;
+  return modal;
 }
 
-// Function to add a dropdown to an icon
-function addDropdownToIcon(icon, options, callback) {
-  const dropdown = createDropdown(options, callback);
-  icon.style.position = 'relative'; // Position relatively
-  icon.appendChild(dropdown); // Append the dropdown to the icon
+// Function to add a modal to an icon
+function addModalToIcon(icon, callback) {
+  const modal = createModal(callback);
+  document.body.appendChild(modal);
 
   icon.addEventListener('click', () => {
-    dropdown.style.display = 'block'; // Show dropdown
+    modal.style.display = 'block'; // Show modal
   });
 }
 
-// Add dropdowns to the icons
-addDropdownToIcon(document.querySelector('#filter-icon'), ['ID', 'Name'], (option) => {
-  // Sort pokemons by the selected option in ascending order
-  pokemons.sort((a, b) => (option === 'ID' ? a.id - b.id : a.name.localeCompare(b.name)));
-  updateDisplayedPokemons();
-});
+// Add modal to the sort icon
+addModalToIcon(document.querySelector('#sort-icon'), (filter, sort) => {
+  // Sort pokemons by the selected filter in ascending order
+  pokemons.sort((a, b) => {
+    if (filter === 'ID') {
+      return parseInt(a.id) - parseInt(b.id); // Convert ids to numbers before comparing
+    } else {
+      return a.name.localeCompare(b.name);
+    }
+  });
 
-addDropdownToIcon(document.querySelector('#sort-icon'), ['Ascending', 'Descending'], (option) => {
-  // Sort displayedPokemons by the selected option
-  displayedPokemons.sort((a, b) =>
-    option === 'Ascending' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-  );
+  displayedPokemons = [...pokemons];
+
+  if (sort === 'Descending') {
+    displayedPokemons.reverse();
+  }
+
   displayPokemons(displayedPokemons);
 });

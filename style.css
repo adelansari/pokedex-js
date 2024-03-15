@@ -365,14 +365,71 @@ footer a:hover {
   justify-content: center;
 }
 
-#filter-icon,
 #sort-icon {
   cursor: pointer;
   color: #aff608;
   transition: transform 0.3s ease;
 }
 
-#filter-icon:hover,
 #sort-icon:hover {
   transform: scale(1.3);
+}
+
+.sortModal {
+  display: none;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.sortModalContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #333;
+  width: 300px;
+  font-size: 0.6rem;
+  color: white;
+}
+
+.sortModalContent div {
+  display: flex;
+  align-items: center;
+}
+
+.sortModalContent label {
+  font-size: 1.2em;
+  margin-right: 10px;
+}
+
+.sortModalContent select {
+  margin-top: 10px;
+}
+
+.sortModalContent select,
+.sortModalContent button {
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.sortModalContent select:hover,
+.sortModalContent button:hover {
+  background-color: #8bc34a;
+}
+
+.sortModalContent button {
+  margin-top: 30px;
+  background-color: #aff608;
+  padding: 0.2rem;
 }
