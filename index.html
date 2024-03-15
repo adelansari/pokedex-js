@@ -16,7 +16,14 @@
       <img src="assets/pokedex-logo.png" alt="Pokédex" />
     </div>
 
-    <input type="text" id="search-bar" placeholder="Search Pokemon" autocomplete="off" />
+    <div class="search-container">
+      <input type="text" id="search-bar" placeholder="Search Pokemon" autocomplete="off" />
+      <span class="material-icons filter-icon" id="filter-icon">filter_alt</span>
+    </div>
+
+    <div id="filter-modal" class="modal">
+      <div class="filter-content"></div>
+    </div>
 
     <main>
       <div id="loader"></div>
