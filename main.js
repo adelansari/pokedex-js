@@ -2,6 +2,7 @@ const baseUrl = 'https://pokeapi.co/api/v2/pokemon';
 const imgUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
 let currentPage = 1;
 let pokemons = [];
+let pokemonId = [];
 let displayedPokemons = [];
 let favorites = JSON.parse(localStorage.getItem('favorites')) || []; // check favorites in local storage or initialize it
 let timeoutId; // for pagination input
@@ -96,7 +97,7 @@ const displayPokemons = (pokemons) => {
 
 /* Pokemon Element Creation and Favorite Handling */
 const createPokemonElement = (pokemon) => {
-  const pokemonId = pokemon.url.split('/')[6]; // extract the id from the url
+  pokemonId = pokemon.url.split('/')[6]; // extract the id from the url
   const isFavorite = favorites.includes(pokemonId);
   const pokemonElement = document.createElement('div');
   pokemonElement.innerHTML = `
@@ -301,8 +302,47 @@ const displaySearchResults = (pokemons) => {
 // Fetch all the Pokemon data
 fetchPokemon();
 
-/* Filter Functionality */
+/* Sorting and filter */
+function createDropdown(options, callback) {
+  const dropdown = document.createElement('div');
+  dropdown.style.display = 'none'; // Hide by default
+  dropdown.style.position = 'absolute'; // Position absolutely
 
-document.querySelector('#filter-icon').addEventListener('click', () => {
-  document.querySelector('#filter-modal').style.display = 'flex';
+  options.forEach((option) => {
+    const button = document.createElement('button');
+    button.textContent = option;
+    button.addEventListener('click', () => {
+      dropdown.style.display = 'none'; // Hide dropdown
+      callback(option); // Call the callback with the selected option
+    });
+    dropdown.appendChild(button);
+  });
+
+  return dropdown;
+}
+
+// Function to add a dropdown to an icon
+function addDropdownToIcon(icon, options, callback) {
+  const dropdown = createDropdown(options, callback);
+  icon.style.position = 'relative'; // Position relatively
+  icon.appendChild(dropdown); // Append the dropdown to the icon
+
+  icon.addEventListener('click', () => {
+    dropdown.style.display = 'block'; // Show dropdown
+  });
+}
+
+// Add dropdowns to the icons
+addDropdownToIcon(document.querySelector('#filter-icon'), ['ID', 'Name'], (option) => {
+  // Sort pokemons by the selected option in ascending order
+  pokemons.sort((a, b) => (option === 'ID' ? a.id - b.id : a.name.localeCompare(b.name)));
+  updateDisplayedPokemons();
+});
+
+addDropdownToIcon(document.querySelector('#sort-icon'), ['Ascending', 'Descending'], (option) => {
+  // Sort displayedPokemons by the selected option
+  displayedPokemons.sort((a, b) =>
+    option === 'Ascending' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+  );
+  displayPokemons(displayedPokemons);
 });
