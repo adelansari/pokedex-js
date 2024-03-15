@@ -372,17 +372,16 @@ addModalToIcon(document.querySelector('#sort-icon'), (filter, sort) => {
   // Sort pokemons by the selected filter in ascending order
   pokemons.sort((a, b) => {
     if (filter === 'ID') {
-      return parseInt(a.id) - parseInt(b.id); // Convert ids to numbers before comparing
+      return a.url.split("/")[6] - b.url.split("/")[6]; // Correctly sorting by ID
     } else {
-      return a.name.localeCompare(b.name);
+      return a.name.localeCompare(b.name); // Sorting by name
     }
   });
 
-  displayedPokemons = [...pokemons];
-
   if (sort === 'Descending') {
-    displayedPokemons.reverse();
+    pokemons.reverse();
   }
 
-  displayPokemons(displayedPokemons);
+  // Update displayed Pokémons based on the current page
+  updateDisplayedPokemons();
 });
