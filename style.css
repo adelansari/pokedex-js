@@ -14,7 +14,7 @@ html {
 body {
   background-color: #333;
   background-image: url(assets/pokemon-background.jpeg);
-  font-family: 'Press Start 2P', sans-serif;
+  font-family: "Press Start 2P", sans-serif;
   background-position: 0 0;
   animation: slide 40s infinite linear;
   display: flex;
@@ -157,6 +157,12 @@ body {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.4);
+  transition: opacity 1s ease-in-out;
+  opacity: 0;
+}
+
+#pokemon-modal.show {
+  opacity: 1;
 }
 
 .modal-content {
