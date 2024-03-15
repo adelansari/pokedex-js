@@ -105,7 +105,7 @@ const displayPokemons = (pokemons) => {
 
 /* Pokemon Element Creation and Favorite Handling */
 const createPokemonElement = (pokemon) => {
-  pokemonId = pokemon.url.split('/')[6]; // extract the id from the url
+  let pokemonId = Number(pokemon.url.split('/')[6]); // extract the id from the url
   const isFavorite = favorites.includes(pokemonId);
   const pokemonElement = document.createElement('div');
   pokemonElement.innerHTML = `
@@ -133,6 +133,7 @@ const createPokemonElement = (pokemon) => {
 };
 
 const toggleFavorite = (pokemonId, favoriteIcon) => {
+  pokemonId = Number(pokemonId);
   if (favorites.includes(pokemonId)) {
     // Remove from favorites
     favorites = favorites.filter((id) => id !== pokemonId);
