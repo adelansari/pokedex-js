@@ -60,6 +60,14 @@ const getContrastColor = (bgColor) => {
   return L > 0.179 ? '#000000' : '#FFFFFF';
 };
 
+const debounce = (func, delay) => {
+  let debounceTimer;
+  return (...args) => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => func(...args), delay);
+  };
+};
+
 /* Fetching and Displaying Pokemon */
 const fetchPokemon = async () => {
   const spinner = document.querySelector('#loader');
@@ -246,16 +254,16 @@ const displayPagination = () => {
   totalPagesSpan.textContent = `/${Math.ceil(pokemons.length / 20)}`;
   pagination.appendChild(totalPagesSpan);
 
-  currentPageInput.addEventListener('input', () => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
+  currentPageInput.addEventListener(
+    'input',
+    debounce(() => {
       const enteredPage = Number(currentPageInput.value);
       if (enteredPage >= 1 && enteredPage <= Math.ceil(pokemons.length / 20)) {
         currentPage = enteredPage;
         updateDisplayedPokemons();
       }
-    }, 1000);
-  });
+    }, 1000)
+  );
 
   if (currentPage < Math.ceil(pokemons.length / 20)) {
     const nextButton = document.createElement('button');
@@ -269,20 +277,17 @@ const displayPagination = () => {
 };
 
 /* Search Functionality */
-let searchTimeout;
-document.querySelector('#search-bar').addEventListener('input', (e) => {
-  clearTimeout(searchTimeout);
+const searchHandler = (e) => {
+  const searchTerm = e.target.value.toLowerCase();
+  if (searchTerm) {
+    const filteredPokemons = pokemons.filter((pokemon) => pokemon.name.includes(searchTerm));
+    displaySearchResults(filteredPokemons);
+  } else {
+    updateDisplayedPokemons();
+  }
+};
 
-  searchTimeout = setTimeout(() => {
-    const searchTerm = e.target.value.toLowerCase();
-    if (searchTerm) {
-      const filteredPokemons = pokemons.filter((pokemon) => pokemon.name.includes(searchTerm));
-      displaySearchResults(filteredPokemons);
-    } else {
-      updateDisplayedPokemons();
-    }
-  }, 500);
-});
+document.querySelector('#search-bar').addEventListener('input', debounce(searchHandler, 500));
 
 const displaySearchResults = (pokemons) => {
   const container = document.querySelector('#pokemon-container');
